@@ -3,10 +3,38 @@ import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Text,Button  } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { connect } from 'react-redux';
+import { pedidoAddStart, pedidosFetchStart } from "../redux/pedido/pedido.actions";
 
-export default function LinksScreen() {
-  return (
+
+class LinksScreen extends React.Component{
+
+  state = { inputPedido: '', inputCliente: '', inputValor: '', inputDescr: '' };
+
+  handleSave = () => {
+    const { pedidoAddStart, lastID } = this.props;
+    const { inputPedido, inputCliente, inputValor, inputDescr } = this.state;
+    const pedido = {id: lastID +1 , nome: inputCliente, pedido: inputPedido, valor: inputValor, descr: inputDescr};
+   
+    
+    if(inputCliente && inputPedido && inputValor && inputDescr){
+      alert("Pedido salvo");
+      pedidoAddStart(pedido);
+      // this.setState({inputPedido: '', inputCliente: '', inputValor: '', inputDescr: ''});
+    }else{
+      alert("Preencha todos os campos!");
+    }
+
+    }
+  
+
+  render() { 
+    const { inputPedido, inputCliente, inputValor, inputDescr } = this.state;
+    const { pedidoAddStart, pedidoFetch } = this.props;
+
+    return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Text>{this.state.teste}</Text>
       {/* <OptionButton
         icon="md-school"
         label="Read the Expo documentation"
@@ -28,53 +56,51 @@ export default function LinksScreen() {
 
       <TextInput
       placeholder="Pedido"
+      value={inputPedido}
+      onChangeText={(data)=> this.setState({inputPedido : data})}
       style={styles.textInputStyle}
       />
 
       <TextInput
       placeholder="Nome do cliente"
+      value={inputCliente}
+      onChangeText={(data)=> this.setState({inputCliente : data})}
       style={styles.textInputStyle}
       />
 
       <TextInput
       placeholder="Valor do pedido"
+      value={inputValor}
+      onChangeText={(data)=> this.setState({inputValor : data})}
       style={styles.textInputStyle}
       />
 
       <TextInput
       placeholder="Descrição do pedido"
+      value={inputDescr}
+      onChangeText={(data)=> this.setState({inputDescr : data})}
       style={styles.textInputStyleMulti}
       multiline={true}
       />
 
       <TouchableOpacity
+      onPress={this.handleSave}
       style={styles.button}>
       <Text style={styles.buttonText}>Salvar Pedido</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      <TouchableOpacity    
+      onPress={pedidoAddStart}
       style={styles.button}>
       <Text style={styles.buttonText}>Voltar</Text>
       </TouchableOpacity>    
 
     </ScrollView>
   );
+  }
 }
 
-function OptionButton({ icon, label, onPress, isLastOption }) {
-  return (
-    <RectButton style={[styles.option, isLastOption && styles.lastOption]} onPress={onPress}>
-      <View style={{ flexDirection: 'row' }}>
-        <View style={styles.optionIconContainer}>
-          <Ionicons name={icon} size={22} color="rgba(0,0,0,0.35)" />
-        </View>
-        <View style={styles.optionTextContainer}>
-          <Text style={styles.optionText}>{label}</Text>
-        </View>
-      </View>
-    </RectButton>
-  );
-}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -122,3 +148,14 @@ const styles = StyleSheet.create({
   },
 });
 
+const mapDispatchToProps = dispatch =>({
+  pedidoAddStart : (p) => dispatch(pedidoAddStart(p)),
+  pedidoFetch : () => dispatch(pedidosFetchStart())
+});
+
+const mapStateToProps = (state) => ({
+  total: state.pedido.total,
+  lastID: state.pedido.lastID
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(LinksScreen)

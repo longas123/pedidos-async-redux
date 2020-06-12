@@ -1,15 +1,49 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
+import { connect } from 'react-redux';
+
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 import { MonoText } from '../components/StyledText';
+import { pedidosFetchStart, getLastID, deletePedido } from '../redux/pedido/pedido.actions';
+// import { getLastID } from '../redux/pedido/pedido-saga';
 
-export default function HomeScreen() {
+class HomeScreen extends React.Component {
+
+  componentDidMount(){
+    const { fetchPedidos, getLastID } = this.props;
+    getLastID();
+    fetchPedidos();
+  }
+
+  render(){
+    let { pedidos, deletePedidoByID } = this.props;
+    pedidos = pedidos ? pedidos : [];
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.welcomeContainer}>
+
+        {
+          pedidos.map(p => {
+            let { id, nome , pedido, valor,descr } = p;
+            return (
+            <View key={id} style={styles.welcomeContainer}>
+              <Text>Id:{id} |Cliente :{nome} | Pedido: {pedido}| Valor: {valor}</Text>
+              <Text>Descrição: {descr}</Text>
+              <TouchableOpacity  
+              onPress={(idPedido) => deletePedidoByID(id)}
+              style={styles.helpLink}
+              >
+                <Text style={styles.helpLinkText}>DELETE</Text>
+              </TouchableOpacity>
+            </View>
+            )
+          })
+        }
+
+        {/* <View style={styles.welcomeContainer}>
           <Image
             source={
               __DEV__
@@ -38,18 +72,13 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
             <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
+
+
       </ScrollView>
-
-      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-        <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
-        </View>
-      </View>
     </View>
   );
+}
 }
 
 HomeScreen.navigationOptions = {
@@ -177,3 +206,15 @@ const styles = StyleSheet.create({
     color: '#2e78b7',
   },
 });
+
+const mapStateToProps = (state) => ({
+  pedidos : state.pedido.pedidos
+});
+
+const  mapDispatchToProps = (dispatch) => ({
+  fetchPedidos : () => dispatch(pedidosFetchStart()),
+  getLastID : () => dispatch(getLastID()),
+  deletePedidoByID : (id) => dispatch(deletePedido(id))
+})
+
+export default connect(mapStateToProps,mapDispatchToProps)(HomeScreen);
