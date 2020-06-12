@@ -1,5 +1,3 @@
-import PedidoActionTypes from './pedido.types';
-
 export const pedidoAddStart = pedido => ({
     type: 'PEDIDO_ADD_START',
     payload: pedido
@@ -14,6 +12,11 @@ export const getTotalPedidos = (total) => ({
     type: 'GET_TOTAL_PEDIDOS',
     payload: total
 });
+
+export const updatePedido = id => ({
+    type: 'UPDATE_PEDIDO',
+    payload: id
+})
 
 export const getLastID = () => ({
     type: 'GET_LAST_ID'
@@ -51,3 +54,8 @@ export const pedidosFetchFail = error =>({
 export const deleteAllPedidos = () => ({
     type: 'DELETE_ALL_PEDIDOS'
 });
+
+export const setPedidoOk = id => ({
+    type: 'SET_PEDIDO_OK',
+    payload: id
+})

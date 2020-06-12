@@ -37,6 +37,37 @@ export function* deleteAll() {
   }
 }
 
+export function* updateById(action) {
+  const { payload } = action;
+  const { id } = payload;
+  console.log(id);
+  let newAr = [];
+
+  try{
+    yield AsyncStorage.getItem('pedidos').then(
+          pedidos => {
+            if(pedidos){
+              let ar = JSON.parse(pedidos);
+              newAr = ar.map(a => {
+                if(a.id == id){
+                  return (a.id = payload);
+                }else{
+                  return a;
+                }
+              })
+
+              AsyncStorage.setItem('pedidos', JSON.stringify(newAr));
+              
+            }
+          }
+        )
+
+        yield put(pedidosFetchSuccess(newAr));
+    }catch(error){
+      console.log(error);
+    }
+}
+
 export function* deleteById(action) {
   const { payload } = action;
   let newAr = [];
@@ -59,8 +90,36 @@ export function* deleteById(action) {
         yield put(pedidosFetchSuccess(newAr));
     }catch(error){
       console.log(error);
+    }     
+}
+
+export function* setPedidoOkById(action) {
+  const { payload } = action;
+  let newAr = [];
+
+  try{
+    yield AsyncStorage.getItem('pedidos').then(
+          pedidos => {
+            if(pedidos){
+              let ar = JSON.parse(pedidos);
+              newAr = ar.map(a => {
+                if(a.id == payload){
+                  return {...a, status: 'ok'};
+                }else{
+                  return a;
+                }
+              })
+
+              AsyncStorage.setItem('pedidos', JSON.stringify(newAr));
+              
+            }
+          }
+        )
+
+        yield put(pedidosFetchSuccess(newAr));
+    }catch(error){
+      console.log(error);
     }
-      
 }
 
 // export function* deletePedidoByID(action){
@@ -156,12 +215,22 @@ export function* deletePedido() {
   yield takeEvery('DELETE_PEDIDO', deleteById);
 }
 
+export function* updatePedido() {
+  yield takeLatest('UPDATE_PEDIDO', updateById);
+}
+
+export function* setPedidoOk() {
+  yield takeEvery('SET_PEDIDO_OK', setPedidoOkById);
+}
+
 export function* pedidoSagas() {
     yield all([
       call(pedidoAddStart), 
       call(pedidosFetchtart), 
       call(deleteAllPedidos), 
       call(getLastID),
-      call(deletePedido)
+      call(deletePedido),
+      call(updatePedido),
+      call(setPedidoOk)
     ])
 }
